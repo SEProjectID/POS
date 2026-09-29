@@ -27,9 +27,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Kalau Anda mengunggah meja-utama-app.zip ke repo (cara termudah dari iPad),
-      # zip itu otomatis dibuka ke folder app/. Kalau tidak ada, repo dianggap
-      # sudah berisi proyeknya langsung.
       - name: Siapkan proyek
         id: prep
         run: |
