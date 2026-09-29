@@ -30,12 +30,19 @@ jobs:
       - name: Siapkan proyek
         id: prep
         run: |
-          if [ -f meja-utama-app.zip ]; then
-            mkdir -p app && unzip -q -o meja-utama-app.zip -d app
-            echo "dir=app" >> "$GITHUB_OUTPUT"
-          else
-            echo "dir=." >> "$GITHUB_OUTPUT"
-          fi
+          ZIP=""
+          for z in 1Pro_Build.zip 1pro-app.zip meja-utama-app.zip; do
+            if [ -f "$z" ]; then ZIP="$z"; break; fi
+          done
+          if [ -z "$ZIP" ]; then ZIP=$(ls -1 *.zip 2>/dev/null | head -n1 || true); fi
+          if [ -z "$ZIP" ]; then echo "Zip proyek tidak ditemukan di folder utama repo"; exit 1; fi
+          echo "Memakai zip: $ZIP"
+          rm -rf app && mkdir -p app && unzip -q -o "$ZIP" -d app
+          PKG=$(find app -maxdepth 3 -name package.json -not -path "*/node_modules/*" | head -n1)
+          if [ -z "$PKG" ]; then echo "package.json tidak ada di dalam $ZIP"; find app -maxdepth 2; exit 1; fi
+          DIR=$(dirname "$PKG")
+          echo "Folder proyek: $DIR"; ls -la "$DIR"
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v4
         with:
@@ -46,8 +53,6 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      # Android SDK sudah terpasang di mesin GitHub; cukup terima lisensinya.
-      # (Gradle mengunduh komponen yang kurang secara otomatis.)
       - name: Terima lisensi Android SDK
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
 
@@ -55,7 +60,7 @@ jobs:
 
       - name: Pasang dependensi
         working-directory: ${{ steps.prep.outputs.dir }}
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Siapkan proyek Android (icon, izin Bluetooth, plugin printer)
         working-directory: ${{ steps.prep.outputs.dir }}
@@ -91,6 +96,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MejaUtama-APK
+          name: 1Pro-APK
           path: ${{ steps.prep.outputs.dir }}/android/app/build/outputs/apk/**/*.apk
           if-no-files-found: error
