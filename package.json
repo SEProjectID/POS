@@ -1,1 +1,21 @@
+{
+  "name": "1pro-pos-app",
+  "version": "1.0.0",
+  "description": "1Pro Point of Sales - Mobile App",
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/setup.js",
+    "build": "npx capacitor build android",
+    "sync": "npx capacitor sync android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/notification": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  }
+}
 
